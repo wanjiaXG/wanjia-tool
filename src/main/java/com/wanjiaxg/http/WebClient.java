@@ -1,8 +1,10 @@
 package com.wanjiaxg.http;
 
 import com.wanjiaxg.utility.ReflectionUtility;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
+import javax.activation.MimeType;
 import javax.net.ssl.*;
 import java.security.cert.X509Certificate;
 import java.util.List;

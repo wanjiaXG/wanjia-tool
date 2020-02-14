@@ -1,6 +1,7 @@
 package com.wanjiaxg.http;
 
 import com.wanjiaxg.utility.IOUtility;
+import com.wanjiaxg.utility.RegexUtility;
 import okhttp3.*;
 
 import java.io.File;
@@ -16,6 +17,8 @@ public class WebRequest {
     private Map<String, String> requestHeaders;
 
     private Map<String, String> postContent;
+
+    private String postJson;
 
     private RequestMethod method;
 
@@ -40,7 +43,10 @@ public class WebRequest {
                 for(Map.Entry<String, String> entry : this.requestHeaders.entrySet()){
                     requestBuilder.addHeader(entry.getKey(), entry.getValue());
                 }
-                if(postContent != null){
+                if(postJson != null){
+                    requestBuilder.post(FormBody.create(postJson, MediaTypeSet.getMediaTypeBySuffix("json")));
+                }
+                else if(postContent != null){
                     FormBody.Builder formBuilder = new FormBody.Builder();
                     for(Map.Entry<String, String> entry : this.postContent.entrySet()){
                         formBuilder.add(entry.getKey(), entry.getValue());
@@ -53,7 +59,7 @@ public class WebRequest {
                         multipartBuilder.addFormDataPart(
                                 entry.getKey(),
                                 entry.getValue(),
-                                RequestBody.create(new File(entry.getValue()), MediaType.parse("application/octet-stream ")));
+                                RequestBody.create(new File(entry.getValue()), MediaTypeSet.getMediaTypeByFullName(entry.getValue())));
                     }
                     requestBuilder.post(multipartBuilder.build());
                 }else if(method == RequestMethod.HEAD){
@@ -106,6 +112,15 @@ public class WebRequest {
             if(postContent == null) postContent = new HashMap<>();
             postContent.put(name, value);
         }
+        return this;
+    }
+
+    public String getPostJson() {
+        return postJson;
+    }
+
+    public WebRequest setPostJson(String postJson) {
+        this.postJson = postJson;
         return this;
     }
 

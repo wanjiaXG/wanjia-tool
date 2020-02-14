@@ -86,5 +86,6 @@ public class WebClientTest {
 
     @Test
     public void test03() throws IOException {
+        String body = WebClient.getInstance().load("").setPostJson("").open().body();
     }
 }
