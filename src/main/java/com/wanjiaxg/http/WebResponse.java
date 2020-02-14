@@ -1,5 +1,6 @@
 package com.wanjiaxg.http;
 
+import com.wanjiaxg.utility.FileUtility;
 import com.wanjiaxg.utility.IOUtility;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -60,7 +61,7 @@ public class WebResponse {
             String tmpFile = System.currentTimeMillis() + this.client.getTmpFileSuffix();
             ResponseBody body = null;
             try{
-                if(!IOUtility.initFileDirectory(file)){
+                if(!FileUtility.initFileDirectory(file)){
                     throw new Exception("Can' write the file " + file);
                 }
                 body = this.response.body();
@@ -82,7 +83,7 @@ public class WebResponse {
                     callback.onReading(length);
                 }
                 fos.close();
-                success = IOUtility.moveFile(tmpFile, file);
+                success = FileUtility.moveFile(tmpFile, file);
                 callback.onSuccess();;
             }catch (Exception e){
                 callback.onError(e.getMessage());
@@ -90,7 +91,7 @@ public class WebResponse {
                 IOUtility.closeStream(fos);
                 IOUtility.closeStream(body);
                 IOUtility.closeStream(is);
-                IOUtility.deleteFile(tmpFile);
+                FileUtility.deleteFile(tmpFile);
             }
         }else {
             callback.onError("Connection failed");

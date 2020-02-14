@@ -16,10 +16,7 @@ public final class RegexUtility {
                 while (matcher.find()){
                     list.add(matcher.group());
                 }
-            }catch (Exception e){
-
-            }
-
+            }catch (Exception ignored){ }
         }
         return list;
     }
@@ -40,4 +37,17 @@ public final class RegexUtility {
         }
         return result;
     }
+
+    public static String getFileNameIgnoreSuffix(String path){
+        return getFirstResult(path, "(?!.*[/|\\\\]).+(?=\\.)");
+    }
+
+    public static String getFileName(String path){
+        return getFirstResult(path, "(?!.*[/|\\\\]).+");
+    }
+
+    public static String getFilePath(String path) {
+        return getFirstResult(path, ".*[/|\\\\]");
+    }
+
 }

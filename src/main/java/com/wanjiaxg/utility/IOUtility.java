@@ -1,133 +1,26 @@
 package com.wanjiaxg.utility;
 
-import com.wanjiaxg.http.WebClient;
-import com.wanjiaxg.http.IWebResultCallback;
-import com.wanjiaxg.http.IWebSaveFileCallback;
-
 import java.io.*;
 
 public final class IOUtility {
 
-    private static WebClient webClient;
+    public static String encoding = "UTF-8";
 
-    static {
-        webClient = WebClient.getInstance();
-    }
-
-    private static String encoding = "UTF-8";
-
-    private static int bufferSize = 1024;
-
-    public static String readAllText(String file){
-        return readAllText(file, encoding);
-    }
-
-    public static String readAllText(String file, String encoding){
-        String result = null;
-        try {
-            result = inputStreamToString(new FileInputStream(file), encoding);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    public static boolean writeAllText(String content, String file){
-        return writeAllText(content, file, encoding);
-    }
-
-    public static boolean writeAllText(String content, String file, String encoding){
-        boolean success = false;
-        FileOutputStream fos = null;
-        try {
-            if(initFileDirectory(file)){
-                byte[] bytes = content.getBytes(encoding);
-                fos = new FileOutputStream(file);
-                fos.write(bytes);
-                fos.flush();
-            }
-            success = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            closeStream(fos);
-        }
-        return success;
-    }
-
-    public static boolean initFileDirectory(String file) {
-        boolean success = true;
-        String path = "";
-        int index = -1;
-        //根据文件路径分隔符判断是否为windows系统
-        if(String.valueOf(File.separatorChar).equals("\\")){
-            //Windows系统分析
-            String str = file.replaceAll("^[A-Za-z]+:\\\\", ""); // abc\hello.mp3
-            index = str.lastIndexOf("\\");
-            if(index > 0){
-                path = file.substring(0, file.lastIndexOf("\\"));
-            }else {
-                index = file.indexOf("\\");
-                if(index == -1){
-                    path = ".\\";
-                }else {
-                    path = file.substring(0, ++index);
-                    index = -1;
-                }
-            }
-        }else {
-            //Linux系统分析
-            index = file.lastIndexOf("/");
-            if(index > 0){
-                path = file.substring(0, index);
-            }else if(index == 0){
-                path = "/";
-                index = -1;
-            }else{
-                path = "./";
-            }
-        }
-
-        if(index != -1){
-            success = mkdir(path);
-        }
-        return success;
-    }
-
-    public static void closeStream(Closeable closeable){
-        if(closeable != null){
-            try {
-                closeable.close();
-            } catch (IOException e) {
-            }
-        }
-    }
-
-    public static boolean mkdir(String dir){
-        return mkdir(new File(dir));
-    }
-
-    public static boolean mkdir(File dir){
-        boolean success = true;
-        if(!dir.exists()){
-            success = dir.mkdirs();
-        }
-        return success;
-    }
-
-    public static boolean moveFile(String source, String target){
-        return new File(source).renameTo(new File(target));
-    }
-
-    public static boolean deleteFile(String file){
-        return new File(file).delete();
-    }
+    public static int bufferSize = 1024;
 
     public static String inputStreamToString(InputStream is){
-        return inputStreamToString(is, encoding);
+        return inputStreamToString(is, encoding, true);
     }
 
     public static String inputStreamToString(InputStream is, String encoding){
+        return inputStreamToString(is, encoding, true);
+    }
+
+    public static String inputStreamToString(InputStream is, boolean autoCloseStream){
+        return inputStreamToString(is, encoding, autoCloseStream);
+    }
+
+    public static String inputStreamToString(InputStream is, String encoding, boolean autoCloseStream){
         String result = null;
         try {
             InputStreamReader isr = new InputStreamReader(is, encoding);
@@ -141,52 +34,45 @@ public final class IOUtility {
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
-            closeStream(is);
+            if(autoCloseStream) closeStream(is);
         }
         return result;
     }
 
-    public static boolean copyFile(String source, String target){
+    public static boolean copyStream(InputStream source, OutputStream target){
+        return copyStream(source, target, bufferSize, true);
+    }
+
+    public static boolean copyStream(InputStream source, OutputStream target, int bufferSize){
+        return copyStream(source, target, bufferSize, true);
+    }
+
+    public static boolean copyStream(InputStream source, OutputStream target, boolean autoCloseStream){
+        return copyStream(source, target, bufferSize, autoCloseStream);
+    }
+
+    public static boolean copyStream(InputStream source, OutputStream target, int bufferSize,  boolean autoCloseStream){
         boolean success = false;
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
-        try {
-            if(initFileDirectory(target)){
-                fis = new FileInputStream(source);
-                fos = new FileOutputStream(target);
-                byte[] buffer = new byte[bufferSize];
-                int length = 0;
-                while ((length = fis.read(buffer)) > 0){
-                    fos.write(buffer, 0, length);
-                    fos.flush();
-                }
-                success = true;
-            }else {
-                throw new Exception("Can't make directory " + target);
+        try{
+            byte[] buffer = new byte[bufferSize];
+            int length = 0;
+            while ((length = source.read(buffer)) > 0){
+                target.write(buffer, 0, length);
+                target.flush();
             }
+            success = true;
         }catch (Exception e){
-            e.printStackTrace();
+
         }finally {
-            closeStream(fis);
-            closeStream(fos);
+            if(autoCloseStream){
+                closeStream(source);
+                closeStream(target);
+            }
         }
         return success;
     }
 
-    public static String downloadString(String url){
-        return webClient.load(url).open().body();
+    public static void closeStream(Closeable closeable){
+        if(closeable != null) try { closeable.close(); } catch (IOException ignored) {}
     }
-
-    public static boolean downloadFile(String url, String file){
-        return webClient.load(url).open().save(file);
-    }
-
-    public static void downloadStringAsync(String url, IWebResultCallback callback){
-        webClient.load(url).openAsync(callback);
-    }
-
-    public static void downloadFileAsync(String url, String file, IWebSaveFileCallback callback){
-        webClient.load(url).openAsync(file, callback);
-    }
-
 }

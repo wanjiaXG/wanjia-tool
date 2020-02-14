@@ -1,6 +1,7 @@
 package com.wanjiaxg.http;
 
 import com.wanjiaxg.utility.ReflectionUtility;
+import okhttp3.CookieJar;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
@@ -98,12 +99,15 @@ public class WebClient {
 
     private static WebClient webClient;
 
-    private WebClient(){
+    public WebClient(){
         initClient();
     }
 
     public static WebClient getInstance(){
-        if(webClient == null) webClient = new WebClient();
+        if(webClient == null){
+            webClient = new WebClient();
+            webClient.setCookieJar(WebCookieJar.getInstance());
+        }
         return webClient;
     }
 
@@ -115,8 +119,7 @@ public class WebClient {
                 .writeTimeout(this.writeTimeoutMillis, TimeUnit.MILLISECONDS)
                 .retryOnConnectionFailure(true)
                 .sslSocketFactory(ssl.getSocketFactory())
-                .hostnameVerifier(verifier)
-                .cookieJar(WebCookieJar.getInstance());
+                .hostnameVerifier(verifier);
         client = builder.build();
     }
 
@@ -200,6 +203,10 @@ public class WebClient {
         this.bufferSize = bufferSize;
     }
 
+    public void setCookieJar(CookieJar cookieJar){
+        ReflectionUtility.setValue(this.client,"cookieJar",cookieJar);
+    }
+
     IWebResultCallback getWebResultCallback() {
         return webResultCallback;
     }
@@ -207,4 +214,5 @@ public class WebClient {
     IWebSaveFileCallback getWebSaveFileCallback() {
         return webSaveFileCallback;
     }
+
 }

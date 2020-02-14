@@ -1,7 +1,6 @@
 package com.wanjiaxg.http;
 
 import com.wanjiaxg.utility.IOUtility;
-import com.wanjiaxg.utility.RegexUtility;
 import okhttp3.*;
 
 import java.io.File;

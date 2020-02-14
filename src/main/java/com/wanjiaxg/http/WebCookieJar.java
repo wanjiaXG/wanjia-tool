@@ -13,7 +13,7 @@ public class WebCookieJar implements CookieJar {
 
     private Map<String, Map<String, Cookie>> cookies;
 
-    private WebCookieJar(){
+    public WebCookieJar(){
         this.cookies = new HashMap<>();
     }
 
@@ -22,6 +22,7 @@ public class WebCookieJar implements CookieJar {
             cookieJar = new WebCookieJar();
         return cookieJar;
     }
+
     @NotNull
     @Override
     public synchronized List<Cookie> loadForRequest(@NotNull HttpUrl httpUrl) {

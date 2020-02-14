@@ -2,6 +2,7 @@ package com.wanjia.test;
 
 import com.wanjiaxg.http.WebClient;
 import com.wanjiaxg.http.IWebSaveFileCallback;
+import com.wanjiaxg.http.WebCookieJar;
 import com.wanjiaxg.utility.RegexUtility;
 import okhttp3.*;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class WebClientTest {
         });
     }
 
-    @Test
+
     public void Test02() throws IOException {
         String url = "http://www.baidu.com";
         WebClient webClient = WebClient.getInstance();
@@ -84,8 +85,15 @@ public class WebClientTest {
         }
     }
 
-    @Test
+
     public void test03() throws IOException {
         String body = WebClient.getInstance().load("").setPostJson("").open().body();
     }
+
+    public void test04(){
+        WebClient client = new WebClient();
+        client.setCookieJar(WebCookieJar.getInstance());
+        System.out.println(client.getClient().cookieJar().equals(WebCookieJar.getInstance()));;
+    }
+
 }
