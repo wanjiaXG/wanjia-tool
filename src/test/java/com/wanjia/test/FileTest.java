@@ -8,8 +8,7 @@ import java.util.List;
 
 public class FileTest {
     public static void main(String[] args) {
-        Zip zip = new Zip();
-        boolean make = zip.make("C:\\application", "C:\\application\\a.zip");
+
         System.out.println(make);
     }
 }

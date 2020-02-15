@@ -9,6 +9,8 @@ import java.util.*;
 
 public class WebCookieJar implements CookieJar {
 
+    private long oneMin = 60000;
+
     private static WebCookieJar cookieJar;
 
     private Map<String, Map<String, Cookie>> cookies;
@@ -33,7 +35,7 @@ public class WebCookieJar implements CookieJar {
                 Iterator<Map.Entry<String, Cookie>> iterator = entry.getValue().entrySet().iterator();
                 while (iterator.hasNext()){
                     Map.Entry<String, Cookie> item = iterator.next();
-                    if(item.getValue().expiresAt() > System.currentTimeMillis()){
+                    if(item.getValue().expiresAt() - oneMin > System.currentTimeMillis()){
                         list.add(item.getValue());
                     }else {
                         iterator.remove();
@@ -52,7 +54,7 @@ public class WebCookieJar implements CookieJar {
             if(!"/".equals(path)){
                 key += path;
             }
-            if(cookie.expiresAt() > System.currentTimeMillis()){
+            if(cookie.expiresAt() - oneMin > System.currentTimeMillis()){
                 Map<String, Cookie> item = null;
                 if(this.cookies.containsKey(key)){
                     item = this.cookies.get(key);
