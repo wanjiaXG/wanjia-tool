@@ -66,7 +66,7 @@ public class Zip {
                     if(autoCreateDirectory){
                         dir.delete();
                     }else {
-                        FileUtility.removeAllFiles(dir);
+                        FileUtility.cleanDirectory(dir);
                     }
                 }finally {
                     IOUtility.closeStream(zis);

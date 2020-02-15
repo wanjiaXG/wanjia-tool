@@ -64,7 +64,20 @@ public final class FileUtility {
     }
 
     public static boolean deleteFile(String file){
-        return new File(file).delete();
+        return deleteFile(new File(file));
+    }
+
+    public static boolean deleteFile(File file){
+        boolean success = false;
+        try{
+            if(file.isDirectory()){
+                cleanDirectory(file);
+            }
+            success = file.delete();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return success;
     }
 
     public static boolean copyFile(String source, String target){
@@ -137,18 +150,18 @@ public final class FileUtility {
 
     }
 
-    public static void removeAllFiles(String dir) {
+    public static void cleanDirectory(String dir) {
         if(dir != null){
-            removeAllFiles(new File(dir));
+            cleanDirectory(new File(dir));
         }
     }
 
-    public static void removeAllFiles(File dir) {
+    public static void cleanDirectory(File dir) {
         if(dir.exists() && dir.isDirectory()){
             File[] files = dir.listFiles();
             for(File file : files){
                 if(file.isDirectory()){
-                    removeAllFiles(file);
+                    cleanDirectory(file);
                 }else {
                     file.delete();
                 }
