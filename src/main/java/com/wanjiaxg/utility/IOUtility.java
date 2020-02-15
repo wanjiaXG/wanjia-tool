@@ -1,6 +1,8 @@
 package com.wanjiaxg.utility;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class IOUtility {
 
@@ -70,6 +72,30 @@ public final class IOUtility {
             }
         }
         return success;
+    }
+
+    public static byte[] streamToArray(InputStream stream){
+        return streamToArray(stream, true);
+    }
+
+    public static byte[] streamToArray(InputStream stream, boolean autoClose){
+        ByteArrayOutputStream bos = null;
+        byte[] result = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[bufferSize];
+            int length = 0;
+            while ((length = stream.read(buffer)) > 0){
+                bos.write(buffer, 0, length);
+            }
+            result = bos.toByteArray();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if(autoClose) closeStream(stream);
+            closeStream(bos);
+        }
+        return result;
     }
 
     public static void closeStream(Closeable closeable){

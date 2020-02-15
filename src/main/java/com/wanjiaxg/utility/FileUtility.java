@@ -175,4 +175,8 @@ public final class FileUtility {
         }
         return list;
     }
+
+    public static String getMD5(){
+        return null;
+    }
 }
