@@ -95,9 +95,14 @@ public final class FileUtility {
     }
 
     public static boolean moveFile(String source, String target){
+        boolean success = false;
         File file = new File(target);
         if(file.exists()) deleteFile(file);
-        return new File(source).renameTo(file);
+        if(new File(source).renameTo(file)){
+            copyFile(source, target);
+            success = deleteFile(source);
+        }
+        return success;
     }
 
     public static String readAllText(String file){
