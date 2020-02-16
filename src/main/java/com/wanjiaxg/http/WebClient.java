@@ -78,11 +78,12 @@ public class WebClient {
      */
     private static SSLContext ssl;
     private static HostnameVerifier verifier;
+    private static TrustManager[] trustAllCerts;
     static{
         try {
             verifier = (ssl, sslSession) -> true;
             ssl = SSLContext.getInstance("SSL");
-            TrustManager[] trustAllCerts = new TrustManager[]{
+            trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
                         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                             return new X509Certificate[0];
@@ -111,14 +112,13 @@ public class WebClient {
         return webClient;
     }
 
-    @SuppressWarnings("deprecation")
     private void initClient(){
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .connectTimeout(this.connectTimeoutMillis, TimeUnit.MILLISECONDS)
                 .readTimeout(this.readTimeoutMillis, TimeUnit.MILLISECONDS)
                 .writeTimeout(this.writeTimeoutMillis, TimeUnit.MILLISECONDS)
                 .retryOnConnectionFailure(true)
-                .sslSocketFactory(ssl.getSocketFactory())
+                .sslSocketFactory(ssl.getSocketFactory(),(X509TrustManager)trustAllCerts[0])
                 .hostnameVerifier(verifier);
         client = builder.build();
     }
