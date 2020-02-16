@@ -5,6 +5,10 @@ import com.wanjiaxg.zip.Zip;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,14 +99,30 @@ public final class FileUtility {
     }
 
     public static boolean moveFile(String source, String target){
-        boolean success = true;
+        boolean success = false;
+        File file = new File(target);
+        if(file.exists()) deleteFile(file);
+        success = new File(source).renameTo(file);
+        if(!success){
+            try {
+                Path s = FileSystems.getDefault().getPath(source);
+                Path t = FileSystems.getDefault().getPath(target);
+                Files.move(s, t);
+                success = true;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return success;
+
+/*
         File file = new File(target);
         if(file.exists()) deleteFile(file);
         if(!new File(source).renameTo(file)){
             copyFile(source, target);
             success = deleteFile(source);
         }
-        return success;
+        return success;*/
     }
 
     public static String readAllText(String file){
