@@ -98,7 +98,7 @@ public final class FileUtility {
         boolean success = true;
         File file = new File(target);
         if(file.exists()) deleteFile(file);
-        if(new File(source).renameTo(file)){
+        if(!new File(source).renameTo(file)){
             copyFile(source, target);
             success = deleteFile(source);
         }
