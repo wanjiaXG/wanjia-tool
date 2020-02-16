@@ -11,7 +11,6 @@ import java.util.List;
 
 public class FileTest {
     public static void main(String[] args) throws FileNotFoundException {
-        byte[] bytes = IOUtility.streamToArray(new FileInputStream("C:\\迅雷下载\\osu.zip.xltd"));
-        System.out.println(bytes.length);
+        FileUtility.moveFile("C:\\a\\b.txt","C:\\a\\c.txt");
     }
 }
