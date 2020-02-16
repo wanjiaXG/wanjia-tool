@@ -42,6 +42,17 @@ public final class RegexUtility {
         return getFirstResult(path, "(?!.*[/|\\\\]).+(?=\\.)");
     }
 
+    public static String getSuffix(String str){
+        String result = str;
+        if(str != null){
+            result = getFirstResult(str, "(?!.*\\.).*");
+            if(result.equals(str)){
+                result = null;
+            }
+        }
+        return result;
+    }
+
     public static String getFileName(String path){
         return getFirstResult(path, "(?!.*[/|\\\\]).+");
     }
