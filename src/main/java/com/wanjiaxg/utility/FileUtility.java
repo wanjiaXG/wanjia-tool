@@ -5,7 +5,6 @@ import com.wanjiaxg.zip.Zip;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -114,15 +113,6 @@ public final class FileUtility {
             }
         }
         return success;
-
-/*
-        File file = new File(target);
-        if(file.exists()) deleteFile(file);
-        if(!new File(source).renameTo(file)){
-            copyFile(source, target);
-            success = deleteFile(source);
-        }
-        return success;*/
     }
 
     public static String readAllText(String file){
@@ -177,22 +167,51 @@ public final class FileUtility {
 
     }
 
+    public static boolean makeZip(String dir, String file){
+        return new Zip().make(dir, file);
+    }
+
     public static void cleanDirectory(String dir) {
         if(dir != null){
-            cleanDirectory(new File(dir));
+            cleanDirectory(dir, null);
         }
     }
 
     public static void cleanDirectory(File dir) {
-        if(dir.exists() && dir.isDirectory()){
+        cleanDirectory(dir, null);
+    }
+
+    /**
+     * 删除正则表达式匹配项的文件以及文件夹
+     * @param dir
+     * @param filterRegex
+     */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void cleanDirectory(File dir, String filterRegex) {
+        if(dir != null && dir.exists() && dir.isDirectory()){
+            if(filterRegex == null){
+                filterRegex = ".";
+            }
             File[] files = dir.listFiles();
-            for(File file : files){
-                if(file.isDirectory()){
-                    cleanDirectory(file);
-                }else {
-                    file.delete();
+            if(files != null){
+                for(File file : files){
+                    if(RegexUtility.getFirstResult(file.getName(), filterRegex) != null){
+                        if(file.isDirectory()){
+                            cleanDirectory(file);
+                        }
+                        System.out.println(file);
+                        deleteFile(file);
+                    }else if(file.isDirectory()){
+                        cleanDirectory(file, filterRegex);
+                    }
                 }
             }
+        }
+    }
+
+    public static void cleanDirectory(String dir, String filterRegex) {
+        if(dir != null){
+            cleanDirectory(new File(dir), filterRegex);
         }
     }
 
@@ -216,7 +235,4 @@ public final class FileUtility {
         return list;
     }
 
-    public static String getMD5(){
-        return null;
-    }
 }

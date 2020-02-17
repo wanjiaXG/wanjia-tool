@@ -8,9 +8,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Objects;
 
 public class FileTest {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void main(String[] args) throws FileNotFoundException {
-        FileUtility.moveFile("C:\\a\\b.txt","C:\\a\\c.txt");
+        String path = "C:\\b";
+        File file = new File(path);
+        FileUtility.cleanDirectory(file,"wanjia");
     }
 }
