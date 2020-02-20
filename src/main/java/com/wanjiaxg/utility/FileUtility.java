@@ -98,7 +98,7 @@ public final class FileUtility {
     }
 
     public static boolean moveFile(String source, String target){
-        boolean success = false;
+        boolean success = initFileDirectory(target);
         File file = new File(target);
         if(file.exists()) deleteFile(file);
         success = new File(source).renameTo(file);
