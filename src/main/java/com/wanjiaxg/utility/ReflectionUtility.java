@@ -1,6 +1,10 @@
 package com.wanjiaxg.utility;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public final class ReflectionUtility {
 
@@ -18,4 +22,16 @@ public final class ReflectionUtility {
         return success;
     }
 
+    public static Object callPrivateMethod(Object object, String methodName, Object...args) {
+        Object result = null;
+        try{
+            Class<?> clazz = object.getClass();
+            Method method = clazz.getDeclaredMethod(methodName);
+            method.setAccessible(true);
+            result = method.invoke(object, args);
+        }catch (Exception e){
+
+        }
+        return result;
+    }
 }
