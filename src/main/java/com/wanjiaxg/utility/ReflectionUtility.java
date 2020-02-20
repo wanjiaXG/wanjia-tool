@@ -22,7 +22,7 @@ public final class ReflectionUtility {
         return success;
     }
 
-    public static Object callPrivateMethod(Object object, String methodName, Object...args) {
+    public static Object callMethod(Object object, String methodName, Object...args) {
         Object result = null;
         try{
             Class<?> clazz = object.getClass();
