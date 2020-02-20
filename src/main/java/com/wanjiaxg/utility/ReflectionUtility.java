@@ -30,7 +30,7 @@ public final class ReflectionUtility {
             method.setAccessible(true);
             result = method.invoke(object, args);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
         return result;
     }
