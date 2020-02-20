@@ -235,4 +235,21 @@ public final class FileUtility {
         return list;
     }
 
+    public static String hashToPath(String hash, int splitLength){
+        if(hash == null) return null;
+        int length = hash.length();
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < (length - length % splitLength);){
+            sb.append(hash.substring(i, i+=splitLength)).append(File.separator);
+        }
+        if(splitLength > length){
+            sb.append(hash);
+        }else if((length % splitLength) == 0){
+            sb.deleteCharAt(sb.length() - 1);
+        }else {
+            sb.append(hash.substring(length - length % splitLength));
+        }
+        return sb.toString();
+    }
+
 }

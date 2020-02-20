@@ -14,7 +14,5 @@ public class FileTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void main(String[] args) throws FileNotFoundException {
         String path = "C:\\b";
-        File file = new File(path);
-        FileUtility.cleanDirectory(file,"wanjia");
     }
 }
