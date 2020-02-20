@@ -5,6 +5,7 @@ import com.wanjiaxg.utility.IOUtility;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -58,7 +59,6 @@ public class WebResponse {
         if(this.response != null){
             InputStream is = null;
             FileOutputStream fos = null;
-            String tmpFile = System.currentTimeMillis() + this.client.getTmpFileSuffix();
             ResponseBody body = null;
             try{
                 if(!FileUtility.initFileDirectory(file)){
@@ -69,7 +69,9 @@ public class WebResponse {
                     throw new Exception("Connection failed");
                 }
                 is = body.byteStream();
-                fos = new FileOutputStream(tmpFile);
+                File f = new File(file);
+                if(!f.exists()) f.createNewFile();
+                fos = new FileOutputStream(f);
                 long contentLength = body.contentLength();
                 if(contentLength < 0){
                     throw new Exception("Empty response");
@@ -83,15 +85,15 @@ public class WebResponse {
                     callback.onReading(length);
                 }
                 fos.close();
-                success = FileUtility.moveFile(tmpFile, file);
+                success = true;
                 callback.onSuccess();;
             }catch (Exception e){
                 callback.onError(e.getMessage());
+                FileUtility.deleteFile(file);
             }finally {
                 IOUtility.closeStream(fos);
                 IOUtility.closeStream(body);
                 IOUtility.closeStream(is);
-                FileUtility.deleteFile(tmpFile);
             }
         }else {
             callback.onError("Connection failed");

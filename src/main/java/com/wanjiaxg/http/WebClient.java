@@ -32,8 +32,6 @@ public class WebClient {
 
     private String userAgent = "WebClient(Java) by wanjia 1.0";
 
-    private String tmpFileSuffix = ".wanjia";
-
     private final IWebResultCallback webResultCallback = new IWebResultCallback() {
         @Override
         public void onReady(int stateCode, Map<String, List<String>> headerFields) {
@@ -185,14 +183,6 @@ public class WebClient {
 
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
-    }
-
-    public String getTmpFileSuffix() {
-        return tmpFileSuffix;
-    }
-
-    public void setTmpFileSuffix(String tmpFileSuffix) {
-        this.tmpFileSuffix = tmpFileSuffix;
     }
 
     public int getBufferSize() {

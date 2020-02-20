@@ -3,13 +3,15 @@ package com.wanjiaxg.utility;
 import com.wanjiaxg.http.IWebResultCallback;
 import com.wanjiaxg.http.IWebSaveFileCallback;
 import com.wanjiaxg.http.WebClient;
+import com.wanjiaxg.http.WebCookieJar;
 
 public final class NetUtility {
 
     private static WebClient client;
 
     static {
-        client = WebClient.getInstance();
+        client = new WebClient();
+        client.setCookieJar(WebCookieJar.getInstance());
     }
 
     public static String downloadString(String url){
