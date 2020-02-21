@@ -235,7 +235,7 @@ public final class FileUtility {
         return list;
     }
 
-    public static String hashToPath(String hash, int splitLength){
+    public static String hashToPath(String basePath, String hash, int splitLength){
         if(hash == null) return null;
         int length = hash.length();
         StringBuilder sb = new StringBuilder();
@@ -249,7 +249,11 @@ public final class FileUtility {
         }else {
             sb.append(hash.substring(length - length % splitLength));
         }
-        return sb.toString();
+        return basePath + File.separator + sb.toString();
+    }
+
+    public static String hashToPath(String hash, int splitLength){
+        return hashToPath("", hash, splitLength);
     }
 
 }
