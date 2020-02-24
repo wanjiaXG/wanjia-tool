@@ -22,33 +22,35 @@ public final class ReflectionUtility {
         return success;
     }
 
-    public static Object invokeMethod(Object object, String methodName, Object...args) {
-        if(object == null) return null;
-        if(methodName == null) return null;
+    public static Method getMethod(Class clazz, String methodName, Class...args) {
+        if(clazz == null || methodName == null) return null;
 
-        Object result = null;
         Method method = null;
-        Class<?> clazz = object.getClass();
         try{
-            method = clazz.getDeclaredMethod(methodName);
+            method = clazz.getDeclaredMethod(methodName, args);
         }catch (Exception e){
-            e.printStackTrace();
             if(clazz.getSuperclass() != null){
                 try {
-                    method = clazz.getSuperclass().getDeclaredMethod(methodName);
+                    method = clazz.getSuperclass().getDeclaredMethod(methodName, args);
                 } catch (NoSuchMethodException ex) {
                     ex.printStackTrace();
                 }
+            }else {
+                e.printStackTrace();
             }
         }
-        if(method != null){
-            try {
-                result = method.invoke(args);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
+        return method;
+    }
+
+    public static Object invokeMethod(Object object, Method method, Object... args){
+        if(object == null || method == null) return null;
+
+        Object result = null;
+        try {
+            method.setAccessible(true);
+            result = method.invoke(object, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
         return result;
     }
