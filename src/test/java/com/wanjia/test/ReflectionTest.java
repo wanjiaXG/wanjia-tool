@@ -7,7 +7,7 @@ import java.io.File;
 public class ReflectionTest {
     public static void main(String[] args) {
         File file = new File("C:\\git.exe");
-        Object length = ReflectionUtility.invokeMethos(file, "length");
+        Object length = ReflectionUtility.invokeMethod(file, "length");
         System.out.println(length);
     }
 }
