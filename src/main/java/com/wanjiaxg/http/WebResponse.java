@@ -23,7 +23,7 @@ public class WebResponse {
 
     String body(IWebResultCallback callback){
         String result = null;
-        if(this.response != null){
+        if(this.response != null && response.code() == 200){
             ResponseBody body = null;
             InputStreamReader isr = null;
             try{
@@ -56,7 +56,7 @@ public class WebResponse {
 
     boolean save(String file, IWebSaveFileCallback callback){
         boolean success = false;
-        if(this.response != null){
+        if(this.response != null  && response.code() == 200){
             InputStream is = null;
             FileOutputStream fos = null;
             ResponseBody body = null;
@@ -107,6 +107,10 @@ public class WebResponse {
 
     public void close(){
         IOUtility.closeStream(this.response);
+    }
+
+    public Response getResponse(){
+        return this.response;
     }
 
 }
