@@ -7,6 +7,9 @@ import com.wanjiaxg.utility.RegexUtility;
 import okhttp3.*;
 import org.junit.Test;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -19,10 +22,10 @@ public class WebClientTest {
     public static void main(String[] args) {
         WebClient client = WebClient.getInstance();
         String url = "https://qd.myapp.com/myapp/qqteam/pcqq/PCQQ2020.exe";
-        client.load(url).openAsync(RegexUtility.getFirstResult(url, "(?!.*/).+"), new IWebSaveFileCallback() {
+        client.load(url).saveAsync(new IWebSaveFileCallback() {
             DecimalFormat df = new DecimalFormat("0.00");
             @Override
-            public void onReady(int stateCode, Map<String, List<String>> headerFields, long contentLength) {
+            public void onReady(int stateCode, Map<String, List<String>> headerFields, long contentLength) throws IOException {
                 System.out.println("文件大小: " + df.format((contentLength/1024.0/1024.0)) + "MB");
                 totalLength = contentLength;
                 timer.schedule(new TimerTask() {
@@ -32,23 +35,33 @@ public class WebClientTest {
                         length = 0;
                     }
                 },0,1000);
+                fos = new FileOutputStream("QQ.exe");
             }
 
             @Override
-            public void onReading(int length) {
+            public void onReading(int length, byte[] buffer) throws IOException {
+                fos.write(buffer,0, length);
                 currentLength+=length;
                 this.length+=length;
             }
 
             @Override
-            public void onSuccess() {
+            public void onSuccess() throws IOException {
                 System.out.println("下载完成");
+                fos.close();
                 timer.cancel();
             }
 
             @Override
             public void onError(String message) {
                 System.out.println("下载失败");
+                if(fos != null){
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        fos = null;
+                    }
+                }
                 timer.cancel();
             }
 
@@ -60,40 +73,9 @@ public class WebClientTest {
 
             private Timer timer = new Timer();
 
+            private FileOutputStream fos;
+
         });
+        while (true);
     }
-
-
-    public void Test02() throws IOException {
-        String url = "http://www.baidu.com";
-        WebClient webClient = WebClient.getInstance();
-        OkHttpClient okHttpClient = new OkHttpClient();
-
-        for(int i = 0; i < 20; i++){
-            long start = System.currentTimeMillis();
-            String body = webClient.load(url).open().body();
-            long end = System.currentTimeMillis();
-            System.out.println("WebClient: " + (end - start) + "ms");
-        }
-
-
-        for(int i = 0; i < 20; i++){
-            long start = System.currentTimeMillis();
-            String body = okHttpClient.newCall(new Request.Builder().url(url).build()).execute().body().string();
-            long end = System.currentTimeMillis();
-            System.out.println("OkHttpClient: " + (end - start) + "ms");
-        }
-    }
-
-
-    public void test03() throws IOException {
-        String body = WebClient.getInstance().load("").setPostJson("").open().body();
-    }
-
-    public void test04(){
-        WebClient client = new WebClient();
-        client.setCookieJar(WebCookieJar.getInstance());
-        System.out.println(client.getClient().cookieJar().equals(WebCookieJar.getInstance()));;
-    }
-
 }

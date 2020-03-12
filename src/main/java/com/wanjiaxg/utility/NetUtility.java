@@ -15,18 +15,19 @@ public final class NetUtility {
     }
 
     public static String downloadString(String url){
-        return client.load(url).open().body();
+        return client.load(url).open().getBody();
     }
 
     public static boolean downloadFile(String url, String file){
-        return client.load(url).open().save(file);
+        return client.load(url).open().saveFile(file);
     }
 
     public static void downloadStringAsync(String url, IWebResultCallback callback){
         client.load(url).openAsync(callback);
     }
 
-    public static void downloadFileAsync(String url, String file, IWebSaveFileCallback callback){
-        client.load(url).openAsync(file, callback);
+    public static void downloadFileAsync(String url, IWebSaveFileCallback callback){
+        client.load(url).saveAsync(callback);
     }
+
 }

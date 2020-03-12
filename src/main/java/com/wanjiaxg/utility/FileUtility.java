@@ -1,7 +1,5 @@
 package com.wanjiaxg.utility;
 
-import com.wanjiaxg.zip.Zip;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,7 +11,7 @@ import java.util.List;
 
 public final class FileUtility {
 
-    public static String encoding = "UTF-8";
+    public static String encoding = System.getProperty("sun.jnu.encoding");
 
     public static boolean initFileDirectory(String file) {
         boolean success = true;
@@ -22,7 +20,7 @@ public final class FileUtility {
         //根据文件路径分隔符判断是否为windows系统
         if(String.valueOf(File.separatorChar).equals("\\")){
             //Windows系统分析
-            String str = file.replaceAll("^[A-Za-z]+:\\\\", ""); // abc\hello.mp3
+            String str = file.replaceAll("^[A-Za-z]+:\\\\", "");
             index = str.lastIndexOf("\\");
             if(index > 0){
                 path = file.substring(0, file.lastIndexOf("\\"));
@@ -146,35 +144,6 @@ public final class FileUtility {
             IOUtility.closeStream(fos);
         }
         return success;
-    }
-
-    public static boolean unzip(String file){
-        return unzip(file, RegexUtility.getFilePath(file));
-    }
-
-    public static boolean unzip(String file, String path){
-        return unzip(file, path, encoding);
-    }
-
-    public static boolean unzip(String file, String path, String encoding){
-        return unzip(file, path, encoding, false);
-    }
-
-    public static boolean unzip(String file, String path, String encoding, boolean autoCreateDirectory){
-        return new Zip().setAutoCreateDirectory(autoCreateDirectory)
-                .setEncoding(encoding)
-                .unpack(file, path);
-
-    }
-
-    public static boolean makeZip(String dir, String file){
-        return new Zip().make(dir, file);
-    }
-
-    public static void cleanDirectory(String dir) {
-        if(dir != null){
-            cleanDirectory(dir, null);
-        }
     }
 
     public static void cleanDirectory(File dir) {

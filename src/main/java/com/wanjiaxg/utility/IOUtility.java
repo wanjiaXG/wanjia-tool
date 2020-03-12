@@ -6,9 +6,9 @@ import java.util.List;
 
 public final class IOUtility {
 
-    public static String encoding = "UTF-8";
+    public static String encoding = System.getProperty("sun.jnu.encoding");
 
-    public static int bufferSize = 1024;
+    public static int bufferSize = 4096;
 
     public static String inputStreamToString(InputStream is){
         return inputStreamToString(is, encoding, true);

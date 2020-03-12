@@ -1,18 +1,14 @@
 package com.wanjia.test;
 
-import com.wanjiaxg.utility.FileUtility;
-import com.wanjiaxg.utility.IOUtility;
-import com.wanjiaxg.zip.Zip;
+import com.wanjiaxg.utility.ZipUtility;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.Objects;
+import java.io.*;
 
 public class FileTest {
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void main(String[] args) throws FileNotFoundException {
-        String path = "C:\\b";
+
+    public static void main(String[] args) throws IOException {
+        FileOutputStream fos = new FileOutputStream("cc.zip");
+        ZipUtility.make("C:\\Users\\Administrator\\source\\repos\\ImageDemo", fos);
+        fos.close();
     }
 }

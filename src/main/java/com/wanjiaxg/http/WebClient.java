@@ -16,60 +16,15 @@ public class WebClient {
 
     private OkHttpClient client;
 
-    private int connectTimeoutMillis = 30000;
-
-    private int writeTimeoutMillis = 30000;
-
-    private int readTimeoutMillis = 30000;
-
     private int maxRetryCount = 5;
 
     private int retryIntervalMillis = 1000;
 
-    private int bufferSize = 1024;
+    private int bufferSize = 4096;
 
     private String encoding = "UTF-8";
 
     private String userAgent = "WebClient(Java) by wanjia 1.0";
-
-    private final IWebResultCallback webResultCallback = new IWebResultCallback() {
-        @Override
-        public void onReady(int stateCode, Map<String, List<String>> headerFields) {
-
-        }
-
-        @Override
-        public void onSuccess(String result) {
-
-        }
-
-        @Override
-        public void onError(String message) {
-
-        }
-    };
-
-    private final IWebSaveFileCallback webSaveFileCallback = new IWebSaveFileCallback() {
-        @Override
-        public void onReady(int stateCode, Map<String, List<String>> headerFields, long contentLength) {
-
-        }
-
-        @Override
-        public void onReading(int length) {
-
-        }
-
-        @Override
-        public void onSuccess() {
-
-        }
-
-        @Override
-        public void onError(String message) {
-
-        }
-    };
 
     /**
      * 跳过SSL证书验证
@@ -111,10 +66,13 @@ public class WebClient {
     }
 
     private void initClient(){
+        int readTimeoutMillis = 30000;
+        int writeTimeoutMillis = 30000;
+        int connectTimeoutMillis = 30000;
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .connectTimeout(this.connectTimeoutMillis, TimeUnit.MILLISECONDS)
-                .readTimeout(this.readTimeoutMillis, TimeUnit.MILLISECONDS)
-                .writeTimeout(this.writeTimeoutMillis, TimeUnit.MILLISECONDS)
+                .connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS)
+                .readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS)
+                .writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS)
                 .retryOnConnectionFailure(true)
                 .sslSocketFactory(ssl.getSocketFactory(),(X509TrustManager)trustAllCerts[0])
                 .hostnameVerifier(verifier);
@@ -125,7 +83,7 @@ public class WebClient {
         return new WebRequest(url, this);
     }
 
-    public OkHttpClient getClient() {
+    protected OkHttpClient getClient() {
         return client;
     }
 
@@ -194,15 +152,7 @@ public class WebClient {
     }
 
     public void setCookieJar(CookieJar cookieJar){
-        ReflectionUtility.setValue(this.client,"cookieJar",cookieJar);
-    }
-
-    IWebResultCallback getWebResultCallback() {
-        return webResultCallback;
-    }
-
-    IWebSaveFileCallback getWebSaveFileCallback() {
-        return webSaveFileCallback;
+        ReflectionUtility.setValue(this.client,"cookieJar", cookieJar);
     }
 
 }

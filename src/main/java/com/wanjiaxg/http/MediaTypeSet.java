@@ -88,6 +88,7 @@ public final class MediaTypeSet {
 
         //application
         mediaTypes.put("json", MediaType.parse("application/json"));
+        mediaTypes.put("xml", MediaType.parse("application/xml"));
         mediaTypes.put("pdf", MediaType.parse("application/pdf"));
         mediaTypes.put("apk", MediaType.parse("application/vnd.android.package-archive"));
     }

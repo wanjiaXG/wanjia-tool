@@ -5,10 +5,7 @@ import com.wanjiaxg.utility.IOUtility;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class WebResponse {
 
@@ -21,88 +18,90 @@ public class WebResponse {
         this.client = client;
     }
 
-    String body(IWebResultCallback callback){
+    @SuppressWarnings("ConstantConditions")
+    public String getBody(){
         String result = null;
-        if(this.response != null && response.code() == 200){
-            ResponseBody body = null;
-            InputStreamReader isr = null;
-            try{
-                StringBuilder sb = new StringBuilder();
-                body = this.response.body();
-                isr = new InputStreamReader(body.byteStream(), this.client.getEncoding());
-                callback.onReady(this.response.code(), this.response.headers().toMultimap());
-                char[] buffer = new char[this.client.getBufferSize()];
-                int length = 0;
-                while ((length = isr.read(buffer)) > 0){
-                    sb.append(buffer, 0, length);
-                }
-                result = sb.toString();
-                callback.onSuccess(result);
-            }catch (Exception e){
-                callback.onError(e.getMessage());
+        if(checkResponseCode()){
+            try {
+                result = response.body().string();
+            } catch (Exception e) {
+                e.printStackTrace();
             }finally {
-                IOUtility.closeStream(isr);
-                IOUtility.closeStream(body);
+                IOUtility.closeStream(response);
             }
-        }else {
-            callback.onError("Connection failed");
         }
         return result;
     }
 
-    public String body(){
-        return body(client.getWebResultCallback());
+    @SuppressWarnings("ConstantConditions")
+    void getBody(IWebResultCallback callback){
+        if(checkResponseCode()){
+            callback.onReady(response.code(), response.headers().toMultimap());
+            try {
+                callback.onSuccess(response.body().string());
+            } catch (Exception e) {
+                callback.onError(e.getMessage());
+            }finally {
+                IOUtility.closeStream(response);
+            }
+        }else {
+            callback.onError("获取失败");
+        }
     }
 
-    boolean save(String file, IWebSaveFileCallback callback){
-        boolean success = false;
-        if(this.response != null  && response.code() == 200){
-            InputStream is = null;
-            FileOutputStream fos = null;
-            ResponseBody body = null;
+    @SuppressWarnings("ConstantConditions")
+    public boolean saveFile(String file){
+        boolean result = false;
+        FileOutputStream fos = null;
+        if(checkResponseCode()){
             try{
-                if(!FileUtility.initFileDirectory(file)){
-                    throw new Exception("Can' write the file " + file);
-                }
-                body = this.response.body();
-                if(body == null){
-                    throw new Exception("Connection failed");
-                }
-                is = body.byteStream();
-                File f = new File(file);
-                if(!f.exists()) f.createNewFile();
-                fos = new FileOutputStream(f);
-                long contentLength = body.contentLength();
-                if(contentLength < 0){
-                    throw new Exception("Empty response");
-                }
-                callback.onReady(this.response.code(), this.response.headers().toMultimap(), contentLength);
+                InputStream is = response.body().byteStream();
+                fos = new FileOutputStream(file);
                 byte[] buffer = new byte[this.client.getBufferSize()];
                 int length = 0;
                 while ((length = is.read(buffer)) > 0){
                     fos.write(buffer, 0, length);
                     fos.flush();
-                    callback.onReading(length);
                 }
-                fos.close();
-                success = true;
-                callback.onSuccess();;
+                result = true;
             }catch (Exception e){
-                callback.onError(e.getMessage());
-                FileUtility.deleteFile(file);
+                e.printStackTrace();
             }finally {
+                IOUtility.closeStream(response);
                 IOUtility.closeStream(fos);
-                IOUtility.closeStream(body);
-                IOUtility.closeStream(is);
             }
-        }else {
-            callback.onError("Connection failed");
         }
-        return success;
+        return result;
     }
 
-    public boolean save(String file){
-        return save(file, this.client.getWebSaveFileCallback());
+    @SuppressWarnings("ConstantConditions")
+    void saveFile(IWebSaveFileCallback callback){
+        if(checkResponseCode()){
+            try{
+                callback.onReady(response.code(),
+                        response.headers().toMultimap(),
+                        response.body().contentLength());
+                InputStream is = response.body().byteStream();
+                byte[] buffer = new byte[this.client.getBufferSize()];
+                int length = 0;
+                while ((length = is.read(buffer)) > 0){
+                    callback.onReading(length, buffer.clone());
+                }
+                callback.onSuccess();
+            }catch (Exception e){
+                callback.onError(e.getMessage());
+            }finally {
+                IOUtility.closeStream(response);
+            }
+        }else{
+            callback.onError("获取失败");
+        }
+    }
+
+    private boolean checkResponseCode(){
+        return this.response != null &&
+               this.response.code() >= 200 &&
+               this.response.code() < 300;
     }
 
     public void close(){
