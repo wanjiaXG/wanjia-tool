@@ -118,6 +118,7 @@ public class ZipUtility {
                 writeFile(zos, entry.getKey(), entry.getValue());
             }
         }
+        zos.finish();
     }
 
     /**
