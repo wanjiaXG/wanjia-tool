@@ -3,6 +3,7 @@ package com.wanjiaxg.utility;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +14,11 @@ public final class FileUtility {
 
     public static String encoding = System.getProperty("sun.jnu.encoding");
 
+    /**
+     * 给定一个文件绝对路径，创建该文件的文件夹
+     * @param file
+     * @return
+     */
     public static boolean initFileDirectory(String file) {
         boolean success = true;
         String path = "";
@@ -52,10 +58,20 @@ public final class FileUtility {
         return success;
     }
 
+    /**
+     * 创建文件夹
+     * @param dir
+     * @return
+     */
     public static boolean mkdir(String dir){
         return mkdir(new File(dir));
     }
 
+    /**
+     * 创建文件夹
+     * @param dir
+     * @return
+     */
     public static boolean mkdir(File dir){
         boolean success = true;
         if(!dir.exists()){
@@ -64,10 +80,20 @@ public final class FileUtility {
         return success;
     }
 
+    /**
+     * 删除文件
+     * @param file
+     * @return
+     */
     public static boolean deleteFile(String file){
         return deleteFile(new File(file));
     }
 
+    /**
+     * 删除文件
+     * @param file
+     * @return
+     */
     public static boolean deleteFile(File file){
         boolean success = false;
         try{
@@ -81,52 +107,102 @@ public final class FileUtility {
         return success;
     }
 
+    /**
+     * 复制文件
+     * @param source
+     * @param target
+     * @return
+     */
     public static boolean copyFile(String source, String target){
         boolean success = false;
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
         try {
             if(FileUtility.initFileDirectory(target)){
-                success = IOUtility.copyStream(
-                        new FileInputStream(source),
-                        new FileOutputStream(target));
+                fis = new FileInputStream(source);
+                fos = new FileOutputStream(target);
+                IOUtility.copyStream(fis,fos);
             }
-        }catch (Exception e){
+            success = true;
+        }catch (IOException e){
             e.printStackTrace();
+        }finally {
+            IOUtility.closeStream(fis);
+            IOUtility.closeStream(fos);
         }
         return success;
     }
 
+    /**
+     * 移动文件
+     * @param source
+     * @param target
+     * @return
+     */
     public static boolean moveFile(String source, String target){
-        boolean success = initFileDirectory(target);
+        initFileDirectory(target);
         File file = new File(target);
         if(file.exists()) deleteFile(file);
-        success = new File(source).renameTo(file);
+        boolean success = new File(source).renameTo(file);
         if(!success){
             try {
                 Path s = FileSystems.getDefault().getPath(source);
                 Path t = FileSystems.getDefault().getPath(target);
                 Files.move(s, t);
                 success = true;
-            }catch (Exception e){
+            }catch (IOException e){
                 e.printStackTrace();
             }
         }
         return success;
     }
 
+    /**
+     * 读取文件内容为字符串
+     * @param file
+     * @return
+     */
     public static String readAllText(String file){
         return readAllText(file, encoding);
     }
 
+    /**
+     * 读取文件内容为字符串
+     * @param file
+     * @param encoding
+     * @return
+     */
     public static String readAllText(String file, String encoding){
         String result = null;
-        try { result = IOUtility.inputStreamToString(new FileInputStream(file), encoding); } catch (Exception ignored) {}
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            result = IOUtility.inputStreamToString(fis, encoding);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            IOUtility.closeStream(fis);
+        }
         return result;
     }
 
+    /**
+     * 将字符串写入到文件
+     * @param content
+     * @param file
+     * @return
+     */
     public static boolean writeAllText(String content, String file){
         return writeAllText(content, file, encoding);
     }
 
+    /**
+     * 将字符串写入到文件
+     * @param content
+     * @param file
+     * @param encoding
+     * @return
+     */
     public static boolean writeAllText(String content, String file, String encoding){
         boolean success = false;
         FileOutputStream fos = null;
@@ -146,12 +222,16 @@ public final class FileUtility {
         return success;
     }
 
+    /**
+     * 清空文件夹
+     * @param dir
+     */
     public static void cleanDirectory(File dir) {
         cleanDirectory(dir, null);
     }
 
     /**
-     * 删除正则表达式匹配项的文件以及文件夹
+     * 清空文件夹
      * @param dir
      * @param filterRegex
      */
@@ -177,26 +257,43 @@ public final class FileUtility {
         }
     }
 
+    /**
+     * 清空文件夹
+     * @param dir
+     * @param filterRegex
+     */
     public static void cleanDirectory(String dir, String filterRegex) {
         if(dir != null){
             cleanDirectory(new File(dir), filterRegex);
         }
     }
 
+    /**
+     * 获取文件夹下边所有文件
+     * @param dir
+     * @return
+     */
     public static List<File> getFilesByDir(String dir){
         return getFilesByDir(new File(dir));
     }
 
+    /**
+     * 获取文件夹下边所有文件
+     * @param dir
+     * @return
+     */
     public static List<File> getFilesByDir(File dir){
         List<File> list = new ArrayList<>();
         if(dir != null && dir.isDirectory()){
             File[] files = dir.listFiles();
-            for (File file : files){
-                if(file.isDirectory()){
-                    list.add(file);
-                    list.addAll(getFilesByDir(file));
-                }else {
-                    list.add(file);
+            if(files != null){
+                for (File file : files){
+                    if(file.isDirectory()){
+                        list.add(file);
+                        list.addAll(getFilesByDir(file));
+                    }else {
+                        list.add(file);
+                    }
                 }
             }
         }

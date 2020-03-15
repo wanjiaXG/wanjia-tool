@@ -4,6 +4,7 @@ import okhttp3.MediaType;
 
 import java.util.HashMap;
 
+@SuppressWarnings("WeakerAccess")
 public final class MediaTypeSet {
 
     private static HashMap<String, MediaType> mediaTypes;

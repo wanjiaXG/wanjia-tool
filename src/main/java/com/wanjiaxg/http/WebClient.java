@@ -2,14 +2,10 @@ package com.wanjiaxg.http;
 
 import com.wanjiaxg.utility.ReflectionUtility;
 import okhttp3.CookieJar;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
-import javax.activation.MimeType;
 import javax.net.ssl.*;
 import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class WebClient {
@@ -83,7 +79,7 @@ public class WebClient {
         return new WebRequest(url, this);
     }
 
-    protected OkHttpClient getClient() {
+    public OkHttpClient getClient() {
         return client;
     }
 
@@ -154,5 +150,4 @@ public class WebClient {
     public void setCookieJar(CookieJar cookieJar){
         ReflectionUtility.setValue(this.client,"cookieJar", cookieJar);
     }
-
 }
