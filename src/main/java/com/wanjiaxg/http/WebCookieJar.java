@@ -35,7 +35,7 @@ public class WebCookieJar implements CookieJar {
                 Iterator<Map.Entry<String, Cookie>> iterator = entry.getValue().entrySet().iterator();
                 while (iterator.hasNext()){
                     Map.Entry<String, Cookie> item = iterator.next();
-                    if(item.getValue().expiresAt() - oneMin > System.currentTimeMillis()){
+                    if(item.getValue().expiresAt() > 0 && item.getValue().expiresAt() - oneMin > System.currentTimeMillis()){
                         list.add(item.getValue());
                     }else {
                         iterator.remove();
@@ -54,7 +54,7 @@ public class WebCookieJar implements CookieJar {
             if(!"/".equals(path)){
                 key += path;
             }
-            if(cookie.expiresAt() - oneMin > System.currentTimeMillis()){
+            if(cookie.expiresAt() > 0 &&  cookie.expiresAt() - oneMin > System.currentTimeMillis()){
                 Map<String, Cookie> item = null;
                 if(this.cookies.containsKey(key)){
                     item = this.cookies.get(key);
