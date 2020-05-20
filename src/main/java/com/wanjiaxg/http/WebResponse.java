@@ -56,14 +56,12 @@ public class WebResponse {
      */
     public String getBody(){
         String result = null;
-        if(code == 0){
-            try {
-                result = response.body().string();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }finally {
-                IOUtility.closeStream(response);
-            }
+        try {
+            result = response.body().string();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            IOUtility.closeStream(response);
         }
         return result;
     }
