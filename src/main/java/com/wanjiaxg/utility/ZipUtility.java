@@ -1,7 +1,5 @@
 package com.wanjiaxg.utility;
 
-import com.wanjiaxg.exception.FileCantCreateException;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -10,9 +8,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class ZipUtility {
-
-    private ZipUtility(){}
+@SuppressWarnings("ALL")
+public final class ZipUtility {
 
     private static String encoding = System.getProperty("sun.jnu.encoding");
 
@@ -37,15 +34,15 @@ public class ZipUtility {
      */
     public static void unpack(InputStream is, String path, String encoding) throws IOException {
         ZipInputStream zis = new ZipInputStream(is, Charset.forName(encoding));
-        ZipEntry entry = null;
+        ZipEntry entry;
         byte[] buffer = new byte[bufferSize];
-        int length = 0;
+        int length;
         while ((entry = zis.getNextEntry()) != null){
             String fileName = path + File.separatorChar + entry.getName();
             File file = new File(fileName);
             if(entry.isDirectory()){
                 if(!file.exists() && !file.mkdirs()){
-                    throw new FileCantCreateException(fileName);
+                    throw new IOException(fileName);
                 }
             }else{
                 try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -147,7 +144,7 @@ public class ZipUtility {
         if(file != null){
             try(FileInputStream fis = new FileInputStream(file)){
                 byte[] buffer = new byte[bufferSize];
-                int length = 0;
+                int length;
                 while ((length = fis.read(buffer)) > 0){
                     zos.write(buffer,0,length);
                     zos.flush();

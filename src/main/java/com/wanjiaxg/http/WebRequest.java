@@ -1,91 +1,101 @@
 package com.wanjiaxg.http;
 
-import com.wanjiaxg.utility.IOUtility;
 import okhttp3.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class WebRequest {
 
+    /**
+     * 客户端引用
+     */
     private WebClient client;
 
+    /**
+     * 上传的文件集合
+     */
     private Map<String, String> files;
 
+    /**
+     * HTTP请求头集合
+     */
     private Map<String, String> requestHeaders;
 
+    /**
+     * POST请求体
+     */
     private StringBuilder postContent;
 
-    private RequestMethod method;
-
+    /**
+     * 请求内容的类型
+     */
     private MediaType mediaType;
 
+    /**
+     * 请求的URL
+     */
     private String url;
 
+    /**
+     * 失败重试的次数
+     */
     private int retryCount;
 
-    public WebRequest(String url, WebClient client) {
+    /**
+     * 构造方法
+     * @param url       请求的URL
+     * @param client    客户端对象
+     */
+    WebRequest(String url, WebClient client) {
         this.client = client;
         this.retryCount = 0;
         this.requestHeaders = new HashMap<>();
         this.postContent = new StringBuilder();
         this.files = new HashMap<>();
         this.url = url;
-        this.mediaType = MediaType.parse("application/x-www-form-urlencoded");
         setUserAgent(client.getUserAgent());
     }
 
     /**
      * 获取响应
-     * @return
+     * @return  响应对象
      */
-    public Response getResponse() {
+    Response getResponse() {
         Response response = null;
-        //重试次数
-        while (this.retryCount < client.getMaxRetryCount()){
-            //初始化request
-            Request.Builder requestBuilder = new Request.Builder().url(url);
+        //初始化request
+        Request.Builder requestBuilder = new Request.Builder().url(url);
 
-            //添加请求头
-            for(Map.Entry<String, String> entry : this.requestHeaders.entrySet()){
-                requestBuilder.addHeader(entry.getKey(), entry.getValue());
-            }
-            //判断请求类型
-            if(postContent.length() > 0){
-                requestBuilder.post(FormBody.create(postContent.toString(), mediaType));
-            } else if (this.files.size() > 0) {
-                MultipartBody.Builder multipartBuilder =
-                        new MultipartBody.Builder().setType(MultipartBody.FORM);
-
-                for (Map.Entry<String, String> entry : this.files.entrySet()) {
-                    multipartBuilder.addFormDataPart(
-                            entry.getKey(),
-                            entry.getValue(),
-                            RequestBody.create(
-                                    new File(entry.getValue()),
-                                    MediaTypeSet.getMediaTypeByFullName(entry.getValue())
-                            ));
-                }
-                requestBuilder.post(multipartBuilder.build());
-            } else if (method == RequestMethod.HEAD) {
-                requestBuilder.head();
-            }
-
-            try{
-                response = client.getClient().newCall(requestBuilder.build()).execute();
-                break;
-            }catch (Exception e1) {
-                e1.printStackTrace();
-                try {
-                    Thread.sleep(this.client.getRetryIntervalMillis());
-                } catch (InterruptedException e2) {
-                    e2.printStackTrace();
-                }
-            }
-            this.retryCount++;
+        //添加请求头
+        for(Map.Entry<String, String> entry : this.requestHeaders.entrySet()){
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
         }
+
+        if(postContent != null) {
+            requestBuilder.post(FormBody.create(postContent.toString(), mediaType));
+        }else if(files.size() > 0){
+            MultipartBody.Builder multipartBuilder =
+                    new MultipartBody.Builder().setType(MultipartBody.FORM);
+
+            for (Map.Entry<String, String> entry : this.files.entrySet()) {
+                multipartBuilder.addFormDataPart(
+                        entry.getKey(),
+                        entry.getValue(),
+                        RequestBody.create(
+                                new File(entry.getValue()),
+                                MediaTypeSet.getMediaTypeByFullName(entry.getValue())
+                        ));
+            }
+            requestBuilder.post(multipartBuilder.build());
+        }
+
+        try{
+            response = client.getClient().newCall(requestBuilder.build()).execute();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return response;
     }
 
@@ -94,27 +104,27 @@ public class WebRequest {
      * @return
      */
     public WebResponse open(){
-        return new WebResponse(getResponse(), this.client);
+        Response response = null;
+        for(int i = 0; i < retryCount; i++){
+            response = getResponse();
+            if(response != null){
+                continue;
+            }
+            try {
+                Thread.sleep(client.getRetryIntervalMillis());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return new WebResponse(response, this.client);
     }
 
-    /**
-     * 异步连接获取文本响应
-     * @param callback
-     */
-    public void openAsync(IWebResultCallback callback){
-        new Thread(() -> {
-            new WebResponse(getResponse(), this.client).getBody(callback);
-        }).start();
+    public void setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
     }
 
-    /**
-     * 异步连接获取流响应
-     * @param callback
-     */
-    public void saveAsync(IWebSaveFileCallback callback){
-        new Thread(() -> {
-            new WebResponse(getResponse(), this.client).saveFile(callback);
-        }).start();
+    public int getRetryCount() {
+        return retryCount;
     }
 
     /**
@@ -135,8 +145,12 @@ public class WebRequest {
      * @return
      */
     public WebRequest addPostContent(String name, String value){
-        this.postContent.append(name + "=" + value + "&");
-
+        this.postContent
+                .append(name)
+                .append("=")
+                .append(value)
+                .append("&");
+        mediaType = MediaType.parse("application/x-www-form-urlencoded");
         return this;
     }
 
@@ -146,7 +160,7 @@ public class WebRequest {
      * @return
      */
     public WebRequest setPostJsonContent(String content) {
-        this.postContent.append(content);
+        this.postContent = new StringBuilder(content);
         mediaType = MediaTypeSet.getMediaTypeBySuffix("json");
         return this;
     }
@@ -157,7 +171,7 @@ public class WebRequest {
      * @return
      */
     public WebRequest setPostXml(String content){
-        this.postContent.append(content);
+        this.postContent = new StringBuilder(content);
         mediaType = MediaTypeSet.getMediaTypeBySuffix("xml");
         return this;
     }
@@ -179,16 +193,6 @@ public class WebRequest {
      */
     public WebRequest addFile(String name, String path){
         this.files.put(name, path);
-        return this;
-    }
-
-    /**
-     * 设置请求方法 仅支持POST-HEAD-GET
-     * @param method
-     * @return
-     */
-    public WebRequest setMethod(RequestMethod method) {
-        this.method = method;
         return this;
     }
 

@@ -1,7 +1,5 @@
 package com.wanjiaxg.utility;
 
-import com.wanjiaxg.http.IWebResultCallback;
-import com.wanjiaxg.http.IWebSaveFileCallback;
 import com.wanjiaxg.http.WebClient;
 import com.wanjiaxg.http.WebCookieJar;
 
@@ -20,14 +18,6 @@ public final class NetUtility {
 
     public static boolean downloadFile(String url, String file){
         return client.load(url).open().saveFile(file);
-    }
-
-    public static void downloadStringAsync(String url, IWebResultCallback callback){
-        client.load(url).openAsync(callback);
-    }
-
-    public static void downloadFileAsync(String url, IWebSaveFileCallback callback){
-        client.load(url).saveAsync(callback);
     }
 
 }

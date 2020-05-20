@@ -3,25 +3,60 @@ package com.wanjiaxg.http;
 import com.wanjiaxg.utility.FileUtility;
 import com.wanjiaxg.utility.IOUtility;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
+@SuppressWarnings("ALL")
 public class WebResponse {
 
+    /**
+     * 响应对象
+     */
     private Response response;
 
+    /**
+     * 客户端
+     */
     private WebClient client;
 
-    public WebResponse(Response response, WebClient client) {
+    /**
+     * 响应码
+     */
+    private int code = 0;
+
+    /**
+     * 构造函数
+     * @param response  响应对象
+     * @param client    客户端
+     */
+    WebResponse(Response response, WebClient client) {
         this.response = response;
         this.client = client;
+        initCode();
     }
 
-    @SuppressWarnings("ConstantConditions")
+    /**
+     * 初始化响应码
+     */
+    private void initCode() {
+        if(this.response != null){
+            try{
+                code = response.code();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 获取响应体
+     * @return
+     */
     public String getBody(){
         String result = null;
-        if(checkResponseCode()){
+        if(code == 0){
             try {
                 result = response.body().string();
             } catch (Exception e) {
@@ -33,27 +68,15 @@ public class WebResponse {
         return result;
     }
 
-    @SuppressWarnings("ConstantConditions")
-    void getBody(IWebResultCallback callback){
-        if(checkResponseCode()){
-            callback.onReady(response.code(), response.headers().toMultimap());
-            try {
-                callback.onSuccess(response.body().string());
-            } catch (Exception e) {
-                callback.onError(e.getMessage());
-            }finally {
-                IOUtility.closeStream(response);
-            }
-        }else {
-            callback.onError("获取失败");
-        }
-    }
-
-    @SuppressWarnings("ConstantConditions")
+    /**
+     * 保存文件到本地
+     * @param file 文件路径
+     * @return
+     */
     public boolean saveFile(String file){
         boolean result = false;
         FileOutputStream fos = null;
-        if(checkResponseCode()){
+        if(code == 200){
             try{
                 InputStream is = response.body().byteStream();
                 fos = new FileOutputStream(file);
@@ -66,6 +89,7 @@ public class WebResponse {
                 result = true;
             }catch (Exception e){
                 e.printStackTrace();
+                FileUtility.deleteFile(file);
             }finally {
                 IOUtility.closeStream(response);
                 IOUtility.closeStream(fos);
@@ -74,42 +98,18 @@ public class WebResponse {
         return result;
     }
 
-    @SuppressWarnings("ConstantConditions")
-    void saveFile(IWebSaveFileCallback callback){
-        if(checkResponseCode()){
-            try{
-                callback.onReady(response.code(),
-                        response.headers().toMultimap(),
-                        response.body().contentLength());
-                InputStream is = response.body().byteStream();
-                byte[] buffer = new byte[this.client.getBufferSize()];
-                int length = 0;
-                while ((length = is.read(buffer)) > 0){
-                    callback.onReading(length, buffer.clone());
-                }
-                callback.onSuccess();
-            }catch (Exception e){
-                callback.onError(e.getMessage());
-            }finally {
-                IOUtility.closeStream(response);
-            }
-        }else{
-            callback.onError("获取失败");
-        }
-    }
-
-    private boolean checkResponseCode(){
-        return this.response != null &&
-               this.response.code() >= 200 &&
-               this.response.code() < 300;
-    }
-
+    /**
+     * 关闭响应对象
+     */
     public void close(){
         IOUtility.closeStream(this.response);
     }
 
+    /**
+     * 获得响应
+     * @return
+     */
     public Response getResponse(){
         return this.response;
     }
-
 }

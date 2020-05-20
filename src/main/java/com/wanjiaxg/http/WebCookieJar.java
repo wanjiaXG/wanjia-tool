@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+@SuppressWarnings("ALL")
 public class WebCookieJar implements CookieJar {
 
     private long oneMin = 60000;

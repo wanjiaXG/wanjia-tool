@@ -1,14 +1,15 @@
 package com.wanjia.test;
 
-import com.wanjiaxg.utility.ZipUtility;
+import com.wanjiaxg.http.MediaTypeSet;
+import com.wanjiaxg.utility.FileUtility;
+import okhttp3.MediaType;
 
 import java.io.*;
 
 public class FileTest {
 
     public static void main(String[] args) throws IOException {
-        FileOutputStream fos = new FileOutputStream("cc.zip");
-        ZipUtility.make("C:\\Users\\Administrator\\source\\repos\\ImageDemo", fos);
-        fos.close();
+        MediaType type = MediaTypeSet.getMediaTypeBySuffix(".apk");
+        System.out.println(type);
     }
 }
