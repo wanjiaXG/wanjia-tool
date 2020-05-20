@@ -12,18 +12,10 @@ public class WebCookieJar implements CookieJar {
 
     private long oneMin = 60000;
 
-    private static WebCookieJar cookieJar;
-
     private Map<String, Map<String, Cookie>> cookies;
 
     public WebCookieJar(){
         this.cookies = new HashMap<>();
-    }
-
-    public static WebCookieJar getInstance(){
-        if(cookieJar == null)
-            cookieJar = new WebCookieJar();
-        return cookieJar;
     }
 
     @NotNull

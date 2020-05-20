@@ -50,7 +50,7 @@ public class WebRequest {
      */
     WebRequest(String url, WebClient client) {
         this.client = client;
-        this.retryCount = 0;
+        this.retryCount = client.getMaxRetryCount();
         this.requestHeaders = new HashMap<>();
         this.postContent = new StringBuilder();
         this.files = new HashMap<>();

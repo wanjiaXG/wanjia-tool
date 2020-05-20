@@ -7,9 +7,12 @@ public final class NetUtility {
 
     private static WebClient client;
 
+    private static WebCookieJar cookieJar;
+
     static {
         client = new WebClient();
-        client.setCookieJar(WebCookieJar.getInstance());
+        cookieJar = new WebCookieJar();
+        client.setCookieJar(cookieJar);
     }
 
     public static String downloadString(String url){
