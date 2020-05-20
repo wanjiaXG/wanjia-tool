@@ -52,7 +52,6 @@ public class WebRequest {
         this.client = client;
         this.retryCount = client.getMaxRetryCount();
         this.requestHeaders = new HashMap<>();
-        this.postContent = new StringBuilder();
         this.files = new HashMap<>();
         this.url = url;
         setUserAgent(client.getUserAgent());
