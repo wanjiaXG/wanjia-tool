@@ -108,7 +108,7 @@ public class WebRequest {
         for(int i = 0; i < retryCount; i++){
             response = getResponse();
             if(response != null){
-                continue;
+                break;
             }
             try {
                 Thread.sleep(client.getRetryIntervalMillis());
