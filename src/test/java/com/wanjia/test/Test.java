@@ -6,7 +6,7 @@ import okhttp3.MediaType;
 
 import java.io.*;
 
-public class FileTest {
+public class Test {
 
     public static void main(String[] args) throws IOException {
         MediaType type = MediaTypeSet.getMediaTypeBySuffix(".apk");
